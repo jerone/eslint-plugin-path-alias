@@ -3,6 +3,7 @@ import { type TsConfigResult, getTsconfig } from "get-tsconfig";
 import { resolve, dirname } from "node:path";
 import findPkg from "find-pkg";
 import { readFileSync } from "node:fs";
+import slash from "./slash";
 
 export function resolveAliases(
   context: Rule.RuleContext
@@ -37,7 +38,7 @@ function resolvePackageImports(pkg: any, pkgPath: string) {
   Object.entries(imports).forEach(([alias, path]) => {
     if (!path) return;
     if (typeof path !== "string") return;
-    const resolved = resolve(base, path);
+    const resolved = slash(resolve(base, path));
     aliases.set(alias, [resolved]);
   });
 
@@ -50,12 +51,12 @@ function resolveTsconfigPaths(config: TsConfigResult) {
   let base = dirname(config.path);
 
   if (config.config.compilerOptions?.baseUrl) {
-    base = resolve(dirname(config.path), config.config.compilerOptions.baseUrl);
+    base = slash(resolve(dirname(config.path), config.config.compilerOptions.baseUrl));
   }
 
   Object.entries(paths).forEach(([alias, path]) => {
     alias = alias.replace(/\/\*$/, "");
-    path = path.map((p) => resolve(base, p.replace(/\/\*$/, "")));
+    path = path.map((p) => slash(resolve(base, p.replace(/\/\*$/, ""))));
     aliases.set(alias, path);
   });
 
@@ -76,7 +77,7 @@ function resolveCustomPaths(context: Rule.RuleContext) {
     }
 
     const cwd = context.getCwd?.() ?? context.cwd;
-    const resolved = resolve(cwd, path);
+    const resolved = slash(resolve(cwd, path));
     aliases.set(alias, [resolved]);
   });
 

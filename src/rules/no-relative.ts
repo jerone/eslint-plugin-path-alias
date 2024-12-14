@@ -3,6 +3,7 @@ import { dirname, resolve, basename } from "node:path";
 import nanomatch from "nanomatch";
 import { docsUrl } from "../utils/docs-url";
 import { resolveAliases } from "../utils/resolve-aliases";
+import slash from "../utils/slash";
 
 export const noRelative = {
   meta: {
@@ -55,13 +56,12 @@ export const noRelative = {
           return;
         }
 
-        const resolved = resolve(dirname(filePath), importPath);
-        const excepted = matchExceptions(resolved, exceptions);
+        const resolved = slash(resolve(dirname(filePath), importPath));
 
+        const excepted = matchExceptions(resolved, exceptions);
         if (excepted) return;
 
         const alias = matchToAlias(resolved, aliases);
-
         if (!alias) return;
 
         context.report({
@@ -84,11 +84,12 @@ export const noRelative = {
           return;
         }
 
-        const resolved = resolve(dirname(filePath), importPath);
-        const excepted = matchExceptions(resolved, exceptions);
-        const alias = matchToAlias(resolved, aliases);
+        const resolved = slash(resolve(dirname(filePath), importPath));
 
+        const excepted = matchExceptions(resolved, exceptions);
         if (excepted) return;
+
+        const alias = matchToAlias(resolved, aliases);
         if (!alias) return;
 
         context.report({
